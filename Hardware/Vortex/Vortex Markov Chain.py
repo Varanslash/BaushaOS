@@ -37,6 +37,7 @@ def generate(length):
         i += 1
     return " ".join(words)
 
+# THIS HERE IS UNFINISHED
 def train(inputtext):
     inputwords = inputtext.split()
     for word in inputwords:
