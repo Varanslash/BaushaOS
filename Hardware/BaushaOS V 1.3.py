@@ -84,7 +84,7 @@ except TypeError:
 
 # /// Aquamarine Language Compiler ///
 
-
+pass # TODO
 
 # /// Vortex Markov Chain Bot ///
 
@@ -124,14 +124,6 @@ def generate(length):
         words.append(word)
         i += 1
     return " ".join(words)
-
-def train(inputtext):
-    inputwords = inputtext.split()
-    for word in inputwords:
-        if word.istitle() and word not in wordcheck:
-            names.append(word)
-        else:
-            continue
 
 # /// System ///
 
@@ -226,4 +218,5 @@ while True:
             
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
+
         errorcode(1)
