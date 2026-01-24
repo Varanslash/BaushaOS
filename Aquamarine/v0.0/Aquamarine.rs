@@ -37,4 +37,5 @@ fn compile(code: &str, endpoint: &str) {
     let transcode = codebase.join("\n");
     let final_code = format!("fn main() {{\n{}\n}}", transcode);
     fs::write(endpoint, final_code).expect("Should have been able to write the file");
+
 }
