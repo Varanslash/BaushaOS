@@ -2,9 +2,10 @@ echo hi
 var mut stringthing String::new()
 repeat 5
     echo hi
-endrepeat
+endblock
 if true
     echo true
-endif
+endblock
 
 input stringthing
+
