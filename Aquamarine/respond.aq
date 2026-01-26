@@ -1,0 +1,7 @@
+while true
+    var mut line String::new()
+    input line damn
+    if line == ">"
+        echo "hi"
+    endblock
+endblock

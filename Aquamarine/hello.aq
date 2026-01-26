@@ -1,0 +1,12 @@
+echo hi
+var mut stringthing String::new()
+repeat 5
+    echo "hi"
+endblock
+if true
+    echo "true"
+endblock
+rustc println!("hi")
+asm "mov eax, eax"
+closure name
+endblock
