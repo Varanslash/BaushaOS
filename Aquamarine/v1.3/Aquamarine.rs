@@ -171,9 +171,8 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
 
             "for" => {
                 let iterator = splitline[1];
-                let range_start = splitline[3];
-                let range_end = splitline[5];
-                let for_line = format!("for {} in {}..{} {{", iterator, range_start, range_end);
+                let range_start = splitline[3..].join(" ");
+                let for_line = format!("for {} in {} {{", iterator, range_start);
                 let finishedline = for_line;
                 codebase.push(finishedline);
             }
@@ -224,6 +223,9 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                 codebase.push(finishedline);
             }
 
+            // qdef = quick define
+            // allows for quick definitions of common types of variables
+            // this is less about necessity, and more QoL/syntactic sugar for the language
             "qdef" => {
                 match splitline[1] {
                     // nstr here stands for new string
@@ -274,9 +276,14 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
             }
         }
     }
+    // After all of the lines are processed, we put them into a single fn main() wrapper.
+    // This is done because Aquamarine is more like Python rather than Rust despite being low level, so all logic works in main as if there were no other functions.
+    // In essence, it keeps the structure of Aquamarine.
     let transcode = codebase.join("\n");
     let final_code = format!("fn main() {{\n{}\n}}", transcode);
     fs::write(endpoint, final_code).expect("Should have been able to write the file");
+
+    // This allows for multiple flags to be used, mainly for different file outputs depending on user wants.
     if flag == "--asm" {
         let _rustcabuse = Command::new("rustc").arg("--emit=asm").arg(endpoint).output().expect("Failed to compile the code");
     }
