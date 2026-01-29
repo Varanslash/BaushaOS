@@ -31,10 +31,11 @@ fn main() {
 
 fn compile(code: &str, endpoint: &str, flag: &str) {
     let mut codebase: Vec<String> = Vec::new();
+    let mut linecounter = 0;
     for codeline in code.lines() {
         let splitline = codeline.split_whitespace().collect::<Vec<&str>>();
         match splitline.get(0) {
-            Some(value) => {
+            Some(_value) => {
                 match splitline[0] {
                     // Pretty simple, splitline[1] is simply the thing being printed
                     "echo" => {
@@ -42,6 +43,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let writeline = format!("println!({});", valuething);
                         let finishedline = writeline;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // splitline[2] is the name of the variable
@@ -51,12 +53,14 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                             let var_declaration = format!("let mut {} = {};", splitline[2], splitline[3]);
                             let finishedline = var_declaration;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
 
                         else if splitline[1] == "!mut" {
                             let var_declaration2 = format!("let {} = {};", splitline[2], splitline[3]);
                             let finishedline = var_declaration2;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                     }
 
@@ -65,6 +69,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let sleep_line = format!("std::thread::sleep(std::time::Duration::from_millis({}));", splitline[1]);
                         let finishedline = sleep_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // for something like this (and other similar commands), you'll have to use Rust semantics in definitions.
@@ -74,6 +79,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let import_line = format!("use {};", splitline[1]);
                         let finishedline = import_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // Two line process: get input and set variable, then trim variable. to be safe, it also converts to a string.
@@ -84,6 +90,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let input_line = format!("std::io::stdin().read_line(&mut {}).expect(\"{}\"); {} = {}.trim().to_string();", splitline[1], splitline[2..].join(" "), splitline[1], splitline[1]);
                         let finishedline = input_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // Keeps newline. I don't know how useful it'll be, but someone will use it and they will be happy.
@@ -91,6 +98,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let input_line = format!("std::io::stdin().read_line(&mut {}).expect(\"{}\");", splitline[1], splitline[2..].join(" "));
                         let finishedline = input_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // This trims without conversion. Like I said, someone will be happy when they see it.
@@ -98,6 +106,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let input_line = format!("std::io::stdin().read_line(&mut {}).expect(\"{}\"); {} = {}.trim();", splitline[1], splitline[2..].join(" "), splitline[1], splitline[1]);
                         let finishedline = input_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "if" => {
@@ -105,6 +114,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let if_line = format!("if {} {{", condition);
                         let finishedline = if_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "elif" => {
@@ -112,17 +122,20 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let elif_line = format!("else if {} {{", condition);
                         let finishedline = elif_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "else" => {
                         let else_line = String::from("else {");
                         codebase.push(else_line);
+                        linecounter += 1
                     }
 
                     // Originally this was around five different closure keywords, but for simplicity it's now a universal word
                     "endblock" => {
                         let endif_line = String::from("}");
                         codebase.push(endif_line);
+                        linecounter += 1
                     }
 
                     // 1 is variable name
@@ -131,6 +144,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let assign_line = format!("{} = {};", splitline[1], splitline[2..].join(" "));
                         let finishedline = assign_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // For functions, all functions are defined in the main wrapper, seen at the bottom of this code.
@@ -143,19 +157,23 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                             let func_line = format!("fn {}({}) {{", splitline[1], splitline[2..].join(", "));
                             let finishedline = func_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                         else {
                             let func_line = format!("fn {}() {{", splitline[1]);
                             let finishedline = func_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                     }
 
+                    // while true (lol)
                     "while" => {
                         let condition = splitline[1..].join(" ");
                         let while_line = format!("while {} {{", condition);
                         let finishedline = while_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // this is also syntactic sugar/QoL
@@ -166,11 +184,13 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let repeat_line = format!("for _ in 0..{} {{", times);
                         let finishedline = repeat_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "loop" => {
                         let loop_line = String::from("loop {");
                         codebase.push(loop_line);
+                        linecounter += 1
                     }
 
                     "for" => {
@@ -179,6 +199,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let for_line = format!("for {} in {} {{", iterator, range_start);
                         let finishedline = for_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "closure" => {
@@ -188,12 +209,14 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                             let closure_line = format!("let {} = |{}| {{", closure_name, closure_params);
                             let finishedline = closure_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                         else {
                             let closure_name = splitline[1];
                             let closure_line = format!("let {} = || {{", closure_name);
                             let finishedline = closure_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                     }
 
@@ -205,12 +228,14 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                             let call_line = format!("{}({});", func_name, func_args);
                             let finishedline = call_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                         else {
                             let func_name = splitline[1];
                             let call_line = format!("{}();", func_name);
                             let finishedline = call_line;
                             codebase.push(finishedline);
+                            linecounter += 1
                         }
                     }
 
@@ -218,6 +243,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                     "rustc" => {
                         let rustc_line = splitline[1..].join(" ");
                         codebase.push(rustc_line);
+                        linecounter += 1
                     }
 
                     // Inline Assembly
@@ -225,6 +251,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let asm_line = format!("unsafe {{ core::arch::asm!({}); }}", splitline[1..].join(" "));
                         let finishedline = asm_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     // qdef = quick define
@@ -264,6 +291,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                                 panic!("Unknown qdef type: {}", splitline[1]);
                             }
                         }
+                        linecounter += 1
                     }
 
                     "qfunc" => {
@@ -302,6 +330,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                                 panic!("Unknown qfunc type: {}", splitline[1]);
                             }
                         }
+                        linecounter += 1
                     }
 
                     "match" => {
@@ -309,6 +338,7 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let match_line = format!("match {} {{", match_value);
                         let finishedline = match_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "case" => {
@@ -316,11 +346,13 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                         let case_line = format!("{} => {{", case_value);
                         let finishedline = case_line;
                         codebase.push(finishedline);
+                        linecounter += 1
                     }
 
                     "//" => {
                         let comment_line = format!("// {}", splitline[1..].join(" "));
                         codebase.push(comment_line);
+                        linecounter += 1
                     }
 
                     "" => {
@@ -328,7 +360,8 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
                     }
 
                     _ => {
-                        panic!("Unknown command: {}", splitline[0]);
+                        linecounter += 1;
+                        panic!("Unknown command: {} at line {}", splitline[0], linecounter);
                     }
                 }
             }
