@@ -1,3 +1,0 @@
-echo hi
-var !mut name 1
-var mut name2 2
