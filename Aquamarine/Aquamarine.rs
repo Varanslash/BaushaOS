@@ -372,10 +372,6 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
     // This is done because Aquamarine is more like Python rather than Rust despite being low level, so all logic works in main as if there were no other functions.
     // In essence, it keeps the structure of Aquamarine.
     let transcode = codebase.join("\n");
-
-    // This structure checks for the metal flag (bare metal)
-    // If found, it substitutes the main() wrapper in favor of a _start() wrapper.
-    // This is done to allow for embedded systems and OSDev with Aquamarine, effectively making it a systems programming language.
     let final_code = format!("fn main() {{\n{}\n}}", transcode);
     fs::write(endpoint, final_code).expect("Should have been able to write the file");
     // This allows for multiple flags to be used, mainly for different file outputs depending on user wants.
@@ -387,3 +383,4 @@ fn compile(code: &str, endpoint: &str, flag: &str) {
     let _rustcabuse = Command::new("rustc").arg(endpoint).spawn().expect("Failed to compile the code").wait().expect("Failed to wait on child process");
     }
 }
+
