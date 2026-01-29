@@ -1,0 +1,61 @@
+qdef nstr code
+qdef nstr comma
+rustc let mut cells = vec![0];
+rustc let mut stack: Vec<usize> = vec![];
+var mut cellindex 30001
+var mut i 0
+
+repeat 59999
+    qfunc pushvec cells 0
+endblock
+
+input code error in reading
+rustc let codechar: Vec<char> = code.chars().collect(); 
+
+while i < codechar.len()
+    match codechar[i]
+        case '>'
+            qfunc addvar cellindex 1
+            qfunc addvar i 1
+        endblock
+        case '<'
+            qfunc subvar cellindex 1
+            qfunc addvar i 1
+        endblock
+        case '+'
+            qfunc addvar cells[cellindex] 1
+            qfunc addvar i 1
+        endblock
+        case '-'
+            qfunc subvar cells[cellindex] 1
+            qfunc addvar i 1
+        endblock
+        case '.'
+            echo "{}", cells[cellindex] as u8 as char
+            qfunc addvar i 1
+        endblock
+        case ','
+            input comma error message here
+            rustc let mut firstbyte: Vec<_> = comma.chars().collect();
+            assign cells[cellindex] firstbyte[0] as i32
+            qfunc addvar i 1
+        endblock
+
+        case '{'
+            qfunc pushvec stack i
+            qfunc addvar i 1
+        endblock
+        case '}'
+            if cells[cellindex] == 0
+                rustc stack.pop().unwrap();
+                qfunc addvar i 1
+            endblock
+            else
+                assign i *stack.last().unwrap() + 1
+            endblock
+        endblock
+        case _
+            qfunc addvar i 1
+        endblock
+    endblock
+endblock
