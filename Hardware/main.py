@@ -84,7 +84,13 @@ except TypeError:
 
 # /// Aquamarine Language Compiler ///
 
-
+def interpret(lines):
+    lines = lines.split("\n")
+    indent -= 1
+    for line in lines:
+        line = line.split()
+        if line[0] == "echo":
+            print(line[1:])
 
 # /// Vortex Markov Chain Bot ///
 
@@ -210,3 +216,4 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
+
