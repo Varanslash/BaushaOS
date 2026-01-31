@@ -86,7 +86,6 @@ except TypeError:
 
 def interpret(lines):
     lines = lines.split("\n")
-    indent -= 1
     for line in lines:
         line = line.split()
         if line[0] == "echo":
@@ -216,4 +215,5 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
+
 
