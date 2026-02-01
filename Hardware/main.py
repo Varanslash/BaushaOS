@@ -84,12 +84,31 @@ except TypeError:
 
 # /// Aquamarine Language Compiler ///
 
-def interpret(lines):
-    lines = lines.split("\n")
-    for line in lines:
-        line = line.split()
-        if line[0] == "echo":
-            print(line[1:])
+collectlines = []
+
+def interpret(line):
+    line = line.split()
+    if line[0] == "echo":
+        aquapush("print(" + line[1:] + ")")
+
+    elif line[0] == "var":
+        aquapush(line[1] + "=" + line[2:])
+
+    elif line[0] == "qfunc":
+        if line[1] == "add":
+            aquapush(line[2] + "+=" + line[3:])
+        elif line[1] == "sub":
+            aquapush(line[2] + "-=" + line[3:])
+        elif line[1] == "mul":
+            aquapush(line[2] + "*=" + line[3:])
+        elif line[1] == "divr":
+            aquapush(line[2] + "//=" + line[3:])
+        elif line[1] == "divf":
+            aquapush(line[2] + "/=" + line[3:])
+
+def aquapush(fline):
+    global collectlines
+    collectlines.append(fline)
 
 # /// Vortex Markov Chain Bot ///
 
@@ -215,5 +234,6 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
+
 
 
