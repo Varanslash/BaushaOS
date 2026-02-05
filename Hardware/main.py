@@ -1,5 +1,4 @@
 # /// Boot Code ///
-# pyright: reportMissingImports=false, reportMissingModuleSource=false
 # Every Import Known To Man
 
 import machine
@@ -234,6 +233,7 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
+
 
 
 
