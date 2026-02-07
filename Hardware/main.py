@@ -86,6 +86,10 @@ except TypeError:
 collectlines = []
 indent = 0
 
+def aquapush(fline):
+    global collectlines
+    collectlines.append(fline)
+
 def interpret(line):
     line = line.lower().split()
     global indent
@@ -147,10 +151,6 @@ def interpret(line):
 
     elif line[0] == "endblock":
         indent = max(0, indent - 1)
-
-def aquapush(fline):
-    global collectlines
-    collectlines.append(fline)
 
 # /// Vortex Markov Chain Bot ///
 
@@ -282,3 +282,4 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
+
