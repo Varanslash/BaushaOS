@@ -1,4 +1,5 @@
 # /// Boot Code ///
+# pyright: reportMissingImports=false, reportMissingModuleSource=false
 # Every Import Known To Man
 
 import machine
@@ -41,7 +42,13 @@ startup()
 errorcodes = [
     "ERR: A catastrophic and unrecoverable error has occured. Please contact the current owners and developers on GitHub to troubleshoot this error.", # 0
     "ERR: Empty Command", # 1
-    "ERR: Item does not exist" # 2
+    "ERR: Item does not exist", # 2
+    "ERR: Invalid or missing arguments", # 3
+    "ERR: Invalid number", # 4
+    "ERR: Runtime error", # 5
+    "ERR: Unknown command", # 6
+    "ERR: File error", # 7
+    "ERR: MicroAqua syntax error" # 8
 ]
 
 python3 = 0
@@ -93,6 +100,9 @@ def aquapush(fline):
 def interpret(line):
     line = line.lower().split()
     global indent
+    indent = 0
+    if len(line) == 0:
+        return
     
     if line[0] == "echo":
         aquapush(("    " * indent) + "print('" + " ".join(line[1:]) + "')")
@@ -152,6 +162,12 @@ def interpret(line):
     elif line[0] == "endblock":
         indent = max(0, indent - 1)
 
+    elif line[0] == "iblock":
+        indent += 1
+
+    elif line[0] == "none":
+        aquapush("pass")
+
 # /// Vortex Markov Chain Bot ///
 
 words = {}
@@ -187,6 +203,9 @@ def train(inputtext):
 while True:
     try:
         cmdlet = input("BaushaOS> ").split()
+        if len(cmdlet) == 0:
+            errorcode(1)
+            continue
 
         if cmdlet[0] == "echo":
             print(" ".join(cmdlet[1:]))
@@ -199,17 +218,37 @@ while True:
                 if code == "//exit":
                     python3 = 0
                 else:
-                    exec(code)
+                    try:
+                        exec(code)
+                    except Exception:
+                        errorcode(5)
 
         elif cmdlet[0] == "dir":
+            if len(cmdlet) < 3:
+                errorcode(3)
+                continue
             if cmdlet[1] == "-create":
                 filesystem[cmdlet[2]] = []
             elif cmdlet[1] == "-delete":
-                del filesystem[cmdlet[2]]
+                try:
+                    del filesystem[cmdlet[2]]
+                except KeyError:
+                    errorcode(2)
             elif cmdlet[1] == "-show":
-                print("\n".join(filesystem[cmdlet[2]]))
+                try:
+                    print("\n".join(filesystem[cmdlet[2]]))
+                except KeyError:
+                    errorcode(2)
+            else:
+                errorcode(3)
             
-        elif cmdlet[0] == "txtedit" and 1 < len(cmdlet):
+        elif cmdlet[0] == "txtedit":
+            if len(cmdlet) < 2:
+                errorcode(3)
+                continue
+            if cmdlet[1] not in filesystem:
+                errorcode(2)
+                continue
             print("Welcome to Text Editor! Use //exit to exit, or type anything here!")
             txtedit = 1
             while txtedit == 1:
@@ -223,63 +262,123 @@ while True:
             exit()
 
         elif cmdlet[0] == "sapphire":
-            if cmdlet[1] == "-create":
-                if cmdlet[2] == "--new":
-                    drivers[cmdlet[3]] = []
-                elif cmdlet[2] == "--edit":
-                    print("Welcome to Sapphire. Use //exit to exit.")
-                    print("Please know that incorrect driver code can lead to system instability or crashes, effectively bricking this OS.")
-                    aquamar = 1
-                    while aquamar == 1:
-                        try:
-                            newline = input("sh> ")
-                            if newline == "//exit":
-                                aquamar = 0
-                            else:
-                                drivers[cmdlet[3]].append(newline)
-                        except KeyError:
-                            errorcode(2)
+            if len(cmdlet) < 4 or cmdlet[1] != "-create":
+                errorcode(3)
+                continue
+            if cmdlet[2] == "--new":
+                drivers[cmdlet[3]] = []
+            elif cmdlet[2] == "--edit":
+                if cmdlet[3] not in drivers:
+                    errorcode(2)
+                    continue
+                print("Welcome to Sapphire. Use //exit to exit.")
+                print("Please know that incorrect driver code can lead to system instability or crashes, effectively bricking this OS.")
+                aquamar = 1
+                while aquamar == 1:
+                    newline = input("sh> ")
+                    if newline == "//exit":
+                        aquamar = 0
+                    else:
+                        drivers[cmdlet[3]].append(newline)
+            else:
+                errorcode(3)
 
         elif cmdlet[0] == "balengu":
-            if cmdlet[1] == "-create":
-                if cmdlet[2] == "--new":
-                    apps[cmdlet[3]] = []
-                elif cmdlet[2] == "--edit":
-                    print("Welcome to Balengu App Maker! Use //exit to exit, or type your MicroPython here!")
-                    appmake = 1
-                    while appmake == 1:
-                        try:
-                            newline = input("ba> ")
-                            if newline == "//exit":
-                                appmake = 0
-                            else:
-                                apps[cmdlet[3]].append(newline)
-                        except KeyError:
-                            errorcode(2)
+            if len(cmdlet) < 4 or cmdlet[1] != "-create":
+                errorcode(3)
+                continue
+            if cmdlet[2] == "--new":
+                apps[cmdlet[3]] = []
+            elif cmdlet[2] == "--edit":
+                if cmdlet[3] not in apps:
+                    errorcode(2)
+                    continue
+                print("Welcome to Balengu App Maker! Use //exit to exit, or type your MicroPython here!")
+                appmake = 1
+                while appmake == 1:
+                    newline = input("ba> ")
+                    if newline == "//exit":
+                        appmake = 0
+                    else:
+                        apps[cmdlet[3]].append(newline)
+            else:
+                errorcode(3)
 
         elif cmdlet[0] == "apprun":
+            if len(cmdlet) < 2:
+                errorcode(3)
+                continue
+            if cmdlet[1] not in apps:
+                errorcode(2)
+                continue
             try:
                 code = "\n".join(apps[cmdlet[1]])
                 exec(code)
             except Exception:
-                errorcode(0)
+                errorcode(5)
                 BSOD()
 
         elif cmdlet[0] == "aquamarine":
-            for line in apps[cmdlet[1]]:
-                interpret(line)
+            if len(cmdlet) < 3:
+                errorcode(3)
+                continue
+            if cmdlet[1] not in apps:
+                errorcode(2)
+                continue
+            try:
+                for line in apps[cmdlet[1]]:
+                    interpret(line)
+            except Exception:
+                errorcode(8)
+                collectlines = []
+                continue
             apps[cmdlet[2]] = collectlines
             collectlines = []
             
         elif cmdlet[0] == "random":
-            print(random.randint(0, int(cmdlet[1])))
+            if len(cmdlet) < 2:
+                errorcode(3)
+                continue
+            try:
+                upper = int(cmdlet[1])
+                if upper < 0:
+                    raise ValueError
+                print(random.randint(0, upper))
+            except ValueError:
+                errorcode(4)
 
         elif cmdlet[0] == "vortex":
+            if len(cmdlet) < 2:
+                errorcode(3)
+                continue
             if cmdlet[1] == "-generate":
-                result = generate(int(cmdlet[2]))
+                if len(cmdlet) < 4:
+                    errorcode(3)
+                    continue
+                try:
+                    length = int(cmdlet[2])
+                    if length < 1:
+                        raise ValueError
+                except ValueError:
+                    errorcode(4)
+                    continue
+                result = generate(length, cmdlet[3])
                 print("Vortex Generated Output:", result)
+            elif cmdlet[1] == "-train":
+                if len(cmdlet) < 3:
+                    errorcode(3)
+                    continue
+                try:
+                    with open(cmdlet[2], "r") as file:
+                        data = file.read()
+                        train(data)
+                except Exception:
+                    errorcode(7)
+            else:
+                errorcode(3)
+        else:
+            errorcode(6)
             
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
-
