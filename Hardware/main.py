@@ -81,29 +81,72 @@ try:
 except TypeError:
     pass
 
-# /// Aquamarine Language Compiler ///
+# /// MicroAqua language interpreter ///
 
 collectlines = []
+indent = 0
 
 def interpret(line):
-    line = line.split()
+    line = line.lower().split()
+    global indent
+    
     if line[0] == "echo":
-        aquapush("print(" + line[1:] + ")")
+        aquapush(("    " * indent) + "print('" + " ".join(line[1:]) + "')")
 
     elif line[0] == "var":
-        aquapush(line[1] + "=" + line[2:])
+        aquapush(("    " * indent) + line[1] + " = " + " ".join(line[2:]))
 
     elif line[0] == "qfunc":
-        if line[1] == "add":
-            aquapush(line[2] + "+=" + line[3:])
-        elif line[1] == "sub":
-            aquapush(line[2] + "-=" + line[3:])
-        elif line[1] == "mul":
-            aquapush(line[2] + "*=" + line[3:])
-        elif line[1] == "divr":
-            aquapush(line[2] + "//=" + line[3:])
-        elif line[1] == "divf":
-            aquapush(line[2] + "/=" + line[3:])
+        op = {
+            "add": "+=", "sub": "-=", "mul": "*=",
+            "divr": "//=", "divf": "/="
+        }
+        aquapush(("    " * indent) + line[2] + " " + op[line[1]] + " " + " ".join(line[3:]))
+
+    elif line[0] == "qdef":
+        templates = {"stack": "[]", "hmap": "{}"}
+        aquapush(("    " * indent) + line[2] + " = " + templates[line[1]])
+
+    elif line[0] == "loop":
+        aquapush(("    " * indent) + "while True:")
+        indent += 1
+
+    elif line[0] == "for":
+        aquapush(("    " * indent) + "for " + " ".join(line[1:]) + ":")
+        indent += 1
+
+    elif line[0] == "while":
+        aquapush(("    " * indent) + "while " + " ".join(line[1:]) + ":")
+        indent += 1
+
+    elif line[0] == "repeat":
+        aquapush(("    " * indent) + "for _ in range(" + line[1] + "):")
+        indent += 1
+        
+    elif line[0] == "if":
+        aquapush(("    " * indent) + "if " + " ".join(line[1:]) + ":")
+        indent += 1
+        
+    elif line[0] == "elif":
+        aquapush(("    " * indent) + "elif " + " ".join(line[1:]) + ":")
+        indent += 1
+        
+    elif line[0] == "else":
+        aquapush(("    " * indent) + "else:")
+        indent += 1
+        
+    elif line[0] == "fn":
+        aquapush(("    " * indent) + "def " + " ".join(line[1:]) + ":")
+        indent += 1
+        
+    elif line[0] == "mpy":
+        aquapush(("    " * indent) + " ".join(line[1:]))
+
+    elif line[0] == "rblock":
+        indent = 0
+
+    elif line[0] == "endblock":
+        indent = max(0, indent - 1)
 
 def aquapush(fline):
     global collectlines
@@ -149,7 +192,7 @@ while True:
             print(" ".join(cmdlet[1:]))
 
         elif cmdlet[0] == "python":
-            print("Welcome to Python! Use /exit to exit, or execute anything here!")
+            print("Welcome to Python! Use //exit to exit, or execute anything here!")
             python3 = 1
             while python3 == 1:
                 code = input("py> ")
@@ -189,7 +232,7 @@ while True:
                     aquamar = 1
                     while aquamar == 1:
                         try:
-                            newline = input("aq> ")
+                            newline = input("sh> ")
                             if newline == "//exit":
                                 aquamar = 0
                             else:
@@ -221,6 +264,12 @@ while True:
             except Exception:
                 errorcode(0)
                 BSOD()
+
+        elif cmdlet[0] == "aquamarine":
+            for line in apps[cmdlet[1]]:
+                interpret(line)
+            apps[cmdlet[2]] = collectlines
+            collectlines = []
             
         elif cmdlet[0] == "random":
             print(random.randint(0, int(cmdlet[1])))
@@ -233,7 +282,3 @@ while True:
         dragon["happiness"] += random.randint(1, 5)
     except IndexError:
         errorcode(1)
-
-
-
-
