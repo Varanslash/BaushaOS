@@ -109,5 +109,8 @@ while True:
             result = eval(equ)
             print(f"Answer: {result}")
 
+        case ["powershell", cmd]:
+            subprocess.run(["powershell", "-Command", f"{cmd}"])
+            
         case ["sleep", sec]:
             time.sleep(sec)
