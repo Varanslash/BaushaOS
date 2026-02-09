@@ -111,6 +111,15 @@ while True:
 
         case ["powershell", cmd]:
             subprocess.run(["powershell", "-Command", f"{cmd}"])
-            
+
+        case ["dir", action]:
+            if action == "create":
+                if userinput[3] == "file":
+                    subprocess.run(["powershell", "-Command", f"""New-Item -Path "Userspace\\Filesystem\\{userinput[4]}" -ItemType File"""])
+                elif userinput[3] == "dir":
+                    subprocess.run(["powershell", "-Command", f"""New-Item -Path "Userspace\\Filesystem\\{userinput[4]}" -ItemType Directory"""])
+            elif action == "delete":
+                subprocess.run(["powershell", "-Command", f"""Remove-Item -Path "Userspace\\Filesystem\\{userinput[4]}" """])
+    
         case ["sleep", sec]:
             time.sleep(sec)
