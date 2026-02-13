@@ -17,7 +17,6 @@ At boot, the system initializes a set of core state containers:
 * `filesystem`
 * `apps`
 * `drivers`
-* `dragon` (a small stateful system entity)
 
 These are plain Python dictionaries. There is no external storage driver, no block device abstraction. Persistence is simulated through a single file called `config.bau`, which stores serialized JSON representations of the filesystem, apps, and drivers. On startup, the system attempts to read this file and reconstruct internal state. On shutdown or crash recovery, it writes back to this file.
 
@@ -196,4 +195,5 @@ This dual-layer interaction model is significant:
 
 ## About
 # Outroduction
+
 
