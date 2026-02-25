@@ -1,6 +1,6 @@
 # Introduction
 
-Welcome to BaushaOS, a small project aimed at getting me to learn more about programming philosophies and problem solving. It includes a hardware userspace for the OS built on MicroPython, a VM (not very similar to hardware) for the OS, driver (hardware) and app support, a markov chain bot, and a custom compiler. The end goal is to either get the compiler onto LLVM or get the OS on the Linux Kernel.
+Welcome to BaushaOS, a small project aimed at getting me to learn more about programming philosophies and problem solving. It includes a hardware userspace for the OS built on MicroPython, a VM (not very similar to hardware) for the OS, driver (hardware) and app support, a markov chain bot, and a custom compiler. The end goal is to either get the compiler onto LLVM or get the OS on the Linux Kernel. (Note: This has been fulfilled with the creation of BaushaOS Linux!)
 
 This doc is primarily written by AI and reviewed by me.
 
@@ -332,7 +332,144 @@ Kernel
 ↕ file based status channel
 Userspace
 
-# Compiler
-## Language
-## Inner Workings
-# Outroduction
+Aquamarine Transpiler Documentation
+Overview
+
+The Aquamarine Transpiler is a custom Rust-based transpiler designed to convert your Aquamarine language scripts into valid Rust code. Its purpose is to make Aquamarine resemble a high-level scripting language (Python/Pseudocode style) while still leveraging Rust’s compilation, speed, and low-level capabilities.
+
+The transpiler supports inline Rust and assembly, control flow, variable manipulation, functions, closures, loops, and other syntactic sugar. Its design favors flexibility and ease-of-use, even allowing potentially unsafe operations, reflecting its experimental nature.
+
+Features
+
+Converts Aquamarine commands to valid Rust syntax.
+
+Supports control flow constructs: if, elif, else, while, for, loop, repeat, match, case.
+
+Handles variable declaration and assignment, including mutable (var mut) and immutable (var !mut) variables.
+
+Allows inline Rust (rustc) and inline assembly (asm) embedding.
+
+Offers quick variable/function shorthand:
+
+qdef for rapid declaration of strings, vectors, and maps.
+
+qfunc for operations on variables and vectors (addvar, subvar, pushvec, etc.).
+
+Supports functions and closures, both definition (func, closure) and invocation (call).
+
+Preserves comments and supports flexible whitespace handling.
+
+Compiles resulting Rust code either to:
+
+Standard executable (via rustc)
+
+Assembly output (--asm flag)
+
+Installation
+
+Make sure Rust is installed on your system.
+
+Place the transpiler file (e.g., aquamarine_transpiler.rs) in a directory of your choice.
+
+Compile the transpiler:
+
+rustc aquamarine_transpiler.rs -o aquamarine_transpiler
+
+Run it with:
+
+./aquamarine_transpiler <input_file.aqua> <output_file.rs> [--asm|--rustc]
+
+<input_file.aqua> — the source file written in Aquamarine
+
+<output_file.rs> — the Rust output file
+
+Optional flags:
+
+--asm or -a: generate assembly instead of compiling a binary
+
+--rustc or -r: leave Rust code for manual compilation
+
+Command Mapping
+Aquamarine Command	Rust Translation	Notes
+echo <text>	println!(<text>);	Prints text to stdout
+var mut <name> <value>	let mut <name> = <value>;	Mutable variable
+var !mut <name> <value>	let <name> = <value>;	Immutable variable
+assign <var> <value>	<var> = <value>;	Variable reassignment
+input <var> <message>	Reads input, trims, converts to string	Ensures .trim().to_string()
+inputn <var> <message>	Reads input with newline preserved	No conversion
+inputc <var> <message>	Reads input, trims, no conversion	.trim() only
+sleep <ms>	std::thread::sleep(std::time::Duration::from_millis(<ms>));	Milliseconds-based sleep
+import <crate>	use <crate>;	Standard Rust imports
+func <name> [params]	fn <name>(params) {	Function definition
+closure <name> [params]	`let <name> =	params
+call <name> [args]	<name>(args);	Call functions or closures
+if <condition>	if <condition> {	Conditional start
+elif <condition>	else if <condition> {	Else-if start
+else	else {	Else start
+endblock	}	Ends a block
+while <condition>	while <condition> {	Loops
+loop	loop {	Infinite loop
+repeat <times>	for _ in 0..<times> {	Counted loop
+for <var> in <range>	for <var> in <range> {	Iterative loop
+match <value>	match <value> {	Match start
+case <value>	<value> => {	Case inside match
+rustc <line>	Inline Rust	Arbitrary Rust code
+asm <line>	Inline assembly	Unsafe block, uses core::arch::asm!
+qdef nstr <name>	let mut <name> = String::new();	Quick define string
+qdef ostr <name> <value>	let mut <name> = String::from(<value>);	Quick define owned string
+qdef nvec <name> [values...]	let mut <name> = vec![values];	Quick define vector
+qdef nmap <name>	let mut <name>: HashMap<_, _> = HashMap::new();	Quick define map
+qfunc <operation> <target> <arg>	Rust equivalent (+=, -=, push, etc.)	Quick function shorthand
+Flags
+
+--asm / -a: compile the resulting Rust file to assembly output instead of an executable.
+
+--rustc / -r: generate Rust code for manual compilation later (no immediate compilation).
+
+Default behavior: compile Rust code immediately using rustc.
+
+Usage Example
+
+Aquamarine source (hello.aqua):
+
+var mut name "Varan"
+echo "Hello, {{}}" name
+sleep 1000
+
+Running transpiler:
+
+./aquamarine_transpiler hello.aqua hello.rs
+
+Generated Rust (hello.rs):
+
+fn main() {
+    let mut name = "Varan";
+    println!("Hello, {}", name);
+    std::thread::sleep(std::time::Duration::from_millis(1000));
+}
+
+Compile:
+
+rustc hello.rs
+./hello
+
+Output:
+
+Hello, Varan
+Security Notes
+
+This transpiler executes arbitrary Rust and assembly code.
+
+Any Aquamarine script can inject unsafe operations, system calls, or memory manipulation.
+
+Use only with trusted code. Running untrusted scripts can compromise your system.
+
+Design Philosophy
+
+Aquamarine is high-level yet close to Rust, aiming for beginner readability and experimental low-level features.
+
+It preserves Python-like simplicity (linear code structure) while leveraging Rust’s type system, memory safety, and concurrency when compiled.
+
+It allows advanced users to embed Rust and assembly freely, bridging the gap between scripting and low-level control.
+
+Flags and quick shorthand functions (qdef, qfunc) provide developer ergonomics for rapid prototyping.
