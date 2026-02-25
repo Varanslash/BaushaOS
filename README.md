@@ -332,14 +332,14 @@ Kernel
 ↕ file based status channel
 Userspace
 
-Aquamarine Transpiler Documentation
+# Aquamarine Transpiler Documentation
 Overview
 
 The Aquamarine Transpiler is a custom Rust-based transpiler designed to convert your Aquamarine language scripts into valid Rust code. Its purpose is to make Aquamarine resemble a high-level scripting language (Python/Pseudocode style) while still leveraging Rust’s compilation, speed, and low-level capabilities.
 
 The transpiler supports inline Rust and assembly, control flow, variable manipulation, functions, closures, loops, and other syntactic sugar. Its design favors flexibility and ease-of-use, even allowing potentially unsafe operations, reflecting its experimental nature.
 
-Features
+## Features
 
 Converts Aquamarine commands to valid Rust syntax.
 
@@ -365,7 +365,7 @@ Standard executable (via rustc)
 
 Assembly output (--asm flag)
 
-Installation
+## Installation
 
 Make sure Rust is installed on your system.
 
@@ -389,7 +389,7 @@ Optional flags:
 
 --rustc or -r: leave Rust code for manual compilation
 
-Command Mapping
+## Command Mapping
 Aquamarine Command	            Rust Translation	            Notes
 echo <text>	                    println!(<text>);	            Prints text to stdout
 var mut <name> <value>	        let mut <name> = <value>;	    Mutable variable
@@ -420,7 +420,8 @@ qdef ostr <name> <value>	    let mut <name> = String::from(<value>);	Quick defin
 qdef nvec <name> [values...]	let mut <name> = vec![values];	Quick define vector
 qdef nmap <name>	            let mut <name>: HashMap<_, _> = HashMap::new();	Quick define map
 qfunc <operation> <target> <arg>	Rust equivalent (+=, -=, push, etc.)	Quick function shorthand
-Flags
+
+## Flags
 
 --asm / -a: compile the resulting Rust file to assembly output instead of an executable.
 
@@ -428,7 +429,7 @@ Flags
 
 Default behavior: compile Rust code immediately using rustc.
 
-Usage Example
+## Usage Example
 
 Aquamarine source (hello.aqua):
 
@@ -457,21 +458,10 @@ Output:
 
 Hello, Varan
 
-Security Notes
-
-This transpiler executes arbitrary Rust and assembly code.
-
-Any Aquamarine script can inject unsafe operations, system calls, or memory manipulation.
-
-Use only with trusted code. Running untrusted scripts can compromise your system.
-
-Design Philosophy
+## Design Philosophy
 
 Aquamarine is high-level yet close to Rust, aiming for beginner readability and experimental low-level features.
 
 It preserves Python-like simplicity (linear code structure) while leveraging Rust’s type system, memory safety, and concurrency when compiled.
 
-It allows advanced users to embed Rust and assembly freely, bridging the gap between scripting and low-level control.
-
 Flags and quick shorthand functions (qdef, qfunc) provide developer ergonomics for rapid prototyping.
-
