@@ -390,35 +390,35 @@ Optional flags:
 --rustc or -r: leave Rust code for manual compilation
 
 Command Mapping
-Aquamarine Command	Rust Translation	Notes
-echo <text>	println!(<text>);	Prints text to stdout
-var mut <name> <value>	let mut <name> = <value>;	Mutable variable
-var !mut <name> <value>	let <name> = <value>;	Immutable variable
-assign <var> <value>	<var> = <value>;	Variable reassignment
-input <var> <message>	Reads input, trims, converts to string	Ensures .trim().to_string()
-inputn <var> <message>	Reads input with newline preserved	No conversion
-inputc <var> <message>	Reads input, trims, no conversion	.trim() only
-sleep <ms>	std::thread::sleep(std::time::Duration::from_millis(<ms>));	Milliseconds-based sleep
+Aquamarine Command	            Rust Translation	            Notes
+echo <text>	                    println!(<text>);	            Prints text to stdout
+var mut <name> <value>	        let mut <name> = <value>;	    Mutable variable
+var !mut <name> <value>	        let <name> = <value>;	        Immutable variable
+assign <var> <value>	        <var> = <value>;	            Variable reassignment
+input <var> <message>	                                        Reads input, trims, converts to string. Ensures .trim().to_string()
+inputn <var> <message>	                                        Reads input with newline preserved	No conversion
+inputc <var> <message>	                                        Reads input, trims, no conversion	.trim() only
+sleep <ms>	                    std::thread::sleep(std::time::Duration::from_millis(<ms>));	Milliseconds-based sleep
 import <crate>	use <crate>;	Standard Rust imports
-func <name> [params]	fn <name>(params) {	Function definition
-closure <name> [params]	`let <name> =	params
-call <name> [args]	<name>(args);	Call functions or closures
-if <condition>	if <condition> {	Conditional start
-elif <condition>	else if <condition> {	Else-if start
-else	else {	Else start
-endblock	}	Ends a block
-while <condition>	while <condition> {	Loops
-loop	loop {	Infinite loop
-repeat <times>	for _ in 0..<times> {	Counted loop
-for <var> in <range>	for <var> in <range> {	Iterative loop
-match <value>	match <value> {	Match start
-case <value>	<value> => {	Case inside match
-rustc <line>	Inline Rust	Arbitrary Rust code
-asm <line>	Inline assembly	Unsafe block, uses core::arch::asm!
-qdef nstr <name>	let mut <name> = String::new();	Quick define string
-qdef ostr <name> <value>	let mut <name> = String::from(<value>);	Quick define owned string
+func <name> [params]	        fn <name>(params) {	            Function definition
+closure <name> [params]	        let <name> = params
+call <name> [args]	            <name>(args);	                Call functions or closures
+if <condition>	                if <condition> {	            Conditional start
+elif <condition>	            else if <condition> {	        Else-if start
+else	                        else {	                        Else start
+endblock	                    }	                            Ends a block
+while <condition>	            while <condition> {	            Loops
+loop	                        loop {	                        Infinite loop
+repeat <times>	                for _ in 0..<times> {	        Counted loop
+for <var> in <range>	        for <var> in <range> {	        Iterative loop
+match <value>	                match <value> {                	Match start
+case <value>	                <value> => {	                Case inside match
+rustc <line>	                Inline Rust	                    Arbitrary Rust code
+asm <line>	                    Inline assembly	                Unsafe block, uses core::arch::asm!
+qdef nstr <name>	            let mut <name> = String::new();	Quick define string
+qdef ostr <name> <value>	    let mut <name> = String::from(<value>);	Quick define owned string
 qdef nvec <name> [values...]	let mut <name> = vec![values];	Quick define vector
-qdef nmap <name>	let mut <name>: HashMap<_, _> = HashMap::new();	Quick define map
+qdef nmap <name>	            let mut <name>: HashMap<_, _> = HashMap::new();	Quick define map
 qfunc <operation> <target> <arg>	Rust equivalent (+=, -=, push, etc.)	Quick function shorthand
 Flags
 
@@ -456,6 +456,7 @@ rustc hello.rs
 Output:
 
 Hello, Varan
+
 Security Notes
 
 This transpiler executes arbitrary Rust and assembly code.
@@ -473,3 +474,4 @@ It preserves Python-like simplicity (linear code structure) while leveraging Rus
 It allows advanced users to embed Rust and assembly freely, bridging the gap between scripting and low-level control.
 
 Flags and quick shorthand functions (qdef, qfunc) provide developer ergonomics for rapid prototyping.
+
