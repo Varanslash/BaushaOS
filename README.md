@@ -335,11 +335,4 @@ Userspace
 # Compiler
 ## Language
 ## Inner Workings
-# Distro
-## How To Make Your Own
-
-## About
 # Outroduction
-
-
-
