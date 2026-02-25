@@ -181,12 +181,157 @@ This dual-layer interaction model is significant:
 * Direct Python for experimentation and debugging.
 
 # VM
+
 ## Kernel
+
+The Kernel is written in Rust and acts as the supervisory control layer of the virtual machine. It is responsible for:
+
+### First time initialization
+On startup, the Kernel checks for the existence of three credential files:
+
+Userspace\Transfer Pipelines\Credentials\username.json
+Userspace\Transfer Pipelines\Credentials\password.json
+Userspace\Transfer Pipelines\unsafe_mode.json
+
+If any of these do not exist, the Kernel:
+
+Prompts the user for a username and password
+
+Asks whether unsafe mode should be enabled
+
+Writes these values to their respective files
+
+Transfers control to Userspace upon successful initialization
+
+### Userspace execution loop
+After initialization, the Kernel enters an infinite loop where it:
+
+Spawns the Python OS process (Userspace\OS.py)
+
+Waits for the process to terminate
+
+Reads a status code from Userspace\Transfer Pipelines\statuscode.stat
+
+Matches on that status code to determine behavior
+
+### Status code handling
+Status codes are treated as a granular control channel between Userspace and Kernel.
+
+#### Code 0
+Indicates a logoff request.
+The Kernel prompts the user for confirmation.
+If confirmed, the Kernel exits. Otherwise, it restarts Userspace.
+
+#### Code 1
+Indicates too many failed login attempts.
+The Kernel exits immediately.
+
+#### Any other code
+Treated as a catastrophic error.
+A BSOD style message is printed and the loop continues after a short delay.
+
+### Kernel exit
+kernelexit() sleeps briefly and then terminates the process cleanly.
+
+Architecturally, this Kernel functions as:
+
+Process supervisor
+
+Authentication initializer
+
+Error boundary
+
+Status channel interpreter
+
+It does not implement OS logic. It delegates that to Userspace.
+
 ## Userspace
+
 ### OS
-### Apps
-### Modules
-### Status Channels
+
+The OS is written in Python and operates as the interactive environment for the user. It runs as a subprocess controlled by the Kernel.
+
+#### Authentication
+On startup, the OS:
+
+Reads username and password from credential files
+
+Prompts the user to enter credentials in the format: username, password
+
+Allows three login attempts
+
+On failure after three attempts, returns status code 1 via mof.statusreturn(1)
+
+On success, enters the command loop
+
+#### Environment initialization
+After successful login:
+
+Displays an ASCII banner
+
+Displays copyright information
+
+Retrieves hostname via socket.gethostname()
+
+Enters a command interpreter loop
+
+#### Command interpreter
+
+Supported commands:
+
+run <app>
+Executes Userspace\Apps<app>.py via PowerShell.
+
+logoff
+Sends status code 0 back to Kernel using mof.statusreturn("0").
+
+echo <string>
+Prints the provided string.
+
+eval <expression>
+Evaluates a Python expression using eval() and prints the result.
+
+powershell <cmd>
+Executes arbitrary PowerShell commands.
+
+dir create file <name>
+Creates a file in Userspace\Filesystem.
+
+dir create dir <name>
+Creates a directory in Userspace\Filesystem.
+
+dir delete <name>
+Removes a file or directory from Userspace\Filesystem.
+
+sleep <sec>
+Sleeps for the specified number of seconds.
+
+#### Control model
+The OS does not exit directly.
+Instead, it communicates termination or error states via statusreturn(), which writes to the status channel file.
+The Kernel then decides what to do.
+
+## Status Channels
+
+Status Channels are file based IPC mechanisms between Kernel and Userspace.
+
+Primary channel:
+Userspace\Transfer Pipelines\statuscode.stat
+
+Mechanism:
+
+Userspace writes an integer status code to this file.
+
+Kernel reads the file after Userspace process termination.
+
+Kernel matches on the integer and determines the next control action.
+
+This creates a simple supervisory model:
+
+Kernel
+↕ file based status channel
+Userspace
+
 # Compiler
 ## Language
 ## Inner Workings
@@ -195,5 +340,6 @@ This dual-layer interaction model is significant:
 
 ## About
 # Outroduction
+
 
 
