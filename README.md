@@ -4,6 +4,8 @@ Welcome to BaushaOS, a small project aimed at getting me to learn more about pro
 
 This doc is primarily written by AI and reviewed by me.
 
+DISCLAIMER: Unless the Jan 1, 2027 law regarding OS-level age verification changes, this OS is not for use in California following that date.
+
 # About
 
 Varanslash (c) 2026
@@ -465,3 +467,4 @@ Aquamarine is high-level yet close to Rust, aiming for beginner readability and 
 It preserves Python-like simplicity (linear code structure) while leveraging Rust’s type system, memory safety, and concurrency when compiled.
 
 Flags and quick shorthand functions (qdef, qfunc) provide developer ergonomics for rapid prototyping.
+
